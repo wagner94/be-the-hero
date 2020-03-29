@@ -7,6 +7,7 @@ module.exports = {
  async index(request, response){
 
         const { page = 1 } = request.body;
+        const [count] = await connection("incidents").count();
         const incidents = await connection('incidents')
         .join('ongs', 'ongs.id', '=' , 'incidents.ong_id')
         .limit(5)
@@ -60,5 +61,6 @@ async  create(request, response){
             return  response.status(204).send();
 
     }
+    
 
 }

@@ -1,40 +1,27 @@
-
-const crypto = require('crypto');
-const connection = require('../database/connection');
-
-
-
-
+const connection = require("../database/connection");
+const crypto = require("crypto");
 
 module.exports = {
+  async index(req, res) {
+    const ongs = await connection("ongs").select("*");
 
-   
+    return res.json(ongs);
+  },
 
- async index(request, response){
-        const ongs = await connection('ongs').select('*');
+  async store(req, res) {
+    const { name, email, whatsapp, city, uf } = req.body;
 
-        return response.json(ongs);
- 
-},
+    const id = crypto.randomBytes(4).toString("HEX");
 
-async  create(request, response){
+    await connection("ongs").insert({
+      id,
+      name,
+      email,
+      whatsapp,
+      city,
+      uf
+    });
 
-    const { name, email, whatsapp, city, uf }  = request.body;
-
-    const id  = crypto.randomBytes(4).toString('HEX');
-    
-    await connection('ongs').insert({
-        id,
-        name,
-        email, 
-        whatsapp,
-        city,
-        uf,
-    })
-    
-   
-    return response.json({ id });
-
-}
-
-}
+    return res.json({ id });
+  }
+};

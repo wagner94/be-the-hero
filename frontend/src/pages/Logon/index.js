@@ -47,7 +47,7 @@ export default function Logon() {
       // guarda no localStorage a ongKey
       localStorage.setItem('ongKey', key);
       // guarda no localStorage a ongName
-      localStorage.setItem('ongName', response.data);
+     //localStorage.setItem('ongName', response.data);
 
       // direciona para página profile
       history.push('/profile');

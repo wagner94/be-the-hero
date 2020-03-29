@@ -1,127 +1,56 @@
-import React, { useState, useRef } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { FiLogIn } from "react-icons/fi";
 
-// carrega o icone da seta para esquerda do pacote feather icons
-import { FiArrowLeft } from 'react-icons/fi';
+import heroesImg from "../../assets/heroes.png";
+import logoImg from "../../assets/logo.svg";
+import api from "../../services/api";
 
-// carrega a api
-import api from '../../services/api';
+import "./styles.css";
 
-// importa o styles local
-import './styles.css';
+export default function Logon() {
+  const [id, setId] = useState("");
 
-// carrega o logo da pasta assets
-import logoImg from '../../assets/logo.svg';
+  const history = useHistory();
 
-export default function NewIncident() {
+  async function handleLogin(e) {
+    e.preventDefault();
 
-    // instancia o history
-    const history = useHistory();
+    try {
+      const response = await api.post("/sessions", { id });
 
-    // pega a ongKey do localstorage
-    const ongKey = localStorage.getItem("ongKey");
+      localStorage.setItem("ongId", id);
+      localStorage.setItem("ongName", response.data.name);
 
-    // Se não houver uma ongKEY salva no localStorage
-    if (!ongKey) {
-        // envia o usuário para tela inicial
-        history.push('/');
+      history.push("/profile");
+    } catch (err) {
+      console.log(err);
+      alert("Falha no login, tente novamente.");
     }
+  }
+  return (
+    <div className="logon-container">
+      <section className="form">
+        <img src={logoImg} alt="Be The Hero" />
 
-    // define os states
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [value, setValue] = useState("");
+        <form onSubmit={handleLogin}>
+          <h1> Faça seu logon </h1>
 
-    // instancia o btnRegister como uma referencia
-    const btnRegister = useRef();
-
-    // define a função handleNewIncident
-    async function handleNewIncident(e) {
-        // previne o funcionamento normal do envio do formulário
-        e.preventDefault();
-
-        // Desabilita o botao para que não seja enviado o formulário mais de uma vez
-        btnRegister.current.setAttribute('disabled', true);
-
-        // armazena o title, description, value dentro da variavel data
-        const data = {
-            title,
-            description,
-            value,
-        };
-
-        // bloco de declaração try, se funcionar:
-        try {
-            // envia os dados do formulário como metodo post para a rota 'incidents' do backend
-            await api.post('incidents', data, {
-                headers: {
-                    // envia a ongKey para o backend pelo cabeçalho da requisição
-                    'Authorization': ongKey
-                }
-            });
-            // direciona para página profile
-            history.push('/profile');
-
-        // se der erro
-        } catch (error) {
-            // libera o uso do botão novamente
-            btnRegister.current.removeAttribute('disabled');
-            // envia alerta de erro ao navegador
-            alert('Erro ao cadastrar caso, tente novamente.');
-        }
-    }
-
-    // imprime o jsx
-    return (
-        <div className="new-incident-container">
-            <div className="content">
-                <section>
-                    <img src={logoImg} alt="Be The Hero"/>
-                    <h1>Cadastrar novo caso</h1>
-                    <p>
-                        Descreva o caso detalhadamente para encontrar um herói para resolver isso.
-                    </p>
-
-                    <Link to="/profile" className="svg-link">
-                        <FiArrowLeft size={16} color="#E02041" />
-                        Voltar para o perfil
-                    </Link>
-                </section>
-                <form 
-                    id="new-incident"
-                    onSubmit={handleNewIncident}
-                >
-                    <input 
-                        placeholder="Título do caso"
-                        value={title}
-                        required
-                        onChange={e => setTitle(e.target.value)}
-                    />
-                    <textarea 
-                        placeholder="Descrição"
-                        value={description}
-                        required
-                        onChange={e => setDescription(e.target.value)}
-                    />
-                    <input 
-                        type="tel" 
-                        placeholder="Valor em reais"
-                        value={value}
-                        required
-                        onChange={e => setValue(e.target.value)}
-                    />
-                    <div className="button-group">
-                        <button className="button cancelar" type="button" onClick={() => {
-                            document.getElementById("new-incident").reset()
-                        }}>
-                            Limpar
-                        </button>
-                        <button ref={btnRegister} className="button" type="submit">
-                            Cadastrar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+          <input
+            placeholder="Sua ID"
+            value={id}
+            onChange={e => setId(e.target.value)}
+          />
+          <button className="button" type="submit">
+            Entrar
+          </button>
+          <Link to="/register" className="back-link">
+            <FiLogIn size={16} color="#e02041" />
+            Não tenho cadastro
+          </Link>
+        </form>
+      </section>
+      <img src={heroesImg} alt="Heroes" />
+    </div>
+  );
 }
